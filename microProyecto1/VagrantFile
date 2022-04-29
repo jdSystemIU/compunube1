@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+#ENV['VAGRANT_NO_PARALLEL'] = 'yes'
+
+
+Vagrant.configure("2") do |config|
+   config.vm.define :vagrantVM1 do |node|
+      node.vm.box = "bento/ubuntu-20.04"
+      node.vm.network :private_network, ip: "172.16.16.101"
+      node.vm.provision "shell", path: "scriptHaproxy.sh"
+      node.vm.hostname = "vagrantVM-1"
+   end
+   
+   config.vm.define :vagrantVM2 do |node|
+      node.vm.box = "bento/ubuntu-20.04"
+      node.vm.network :private_network, ip: "172.16.16.102"
+      node.vm.provision "shell", path: "script1.sh"
+      node.vm.hostname = "vagrantVM-2"
+   end
+   config.vm.define :vagrantVM3 do |node|
+      node.vm.box = "bento/ubuntu-20.04"
+      node.vm.network :private_network, ip: "172.16.16.103"
+      node.vm.provision "shell", path: "script2.sh"
+      node.vm.hostname = "vagrantVM-3"
+   end
+   
+end
