@@ -1,0 +1,1 @@
+{"virtualbox":{"/home/vagrant/test":{"guestpath":"/home/vagrant/test","hostpath":"C:/Users/JOSEP/Documents/GitHub/compunube1/Practica1_Vagrant/vagrantSRC","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"C:/Users/JOSEP/Documents/GitHub/compunube1/Practica1_Vagrant","disabled":false,"__vagrantfile":true}}}
