@@ -25,12 +25,17 @@ def main():
     
     </div>
     """
+    st.set_page_config(
+        page_title="Diseases Prediction App",
+        page_icon="images/perroDoctor.png"
+    )
     st.title("Predicción de Enfermedades a partir de información de sintomatología")
     st.subheader("¿Presentas síntomas que te preocupan?"
 "¡No te angusties! Esta aplicación te brindará una guía de diagnóstico")
     st.markdown(html_temp,unsafe_allow_html=True)
     st.sidebar.title("Seleccione sus síntomas")
-    
+
+
     def user_input_features() -> pd.DataFrame:
         itching = st.sidebar.selectbox("Comezón", options=("No", "Si"))
         skin_rash = st.sidebar.selectbox("Erupción cutanea", options=("No", "Si"))
@@ -158,7 +163,7 @@ def main():
         blackheads = st.sidebar.selectbox("Puntos negros", options=("No", "Si"))
         scurring = st.sidebar.selectbox("Pústulas de acne", options=("No", "Si"))
         skin_peeling = st.sidebar.selectbox("Descamación de piel", options=("No", "Si"))
-        silver_like_dusting = st.sidebar.selectbox("Polvo plateado", options=("No", "Si"))
+        silver_like_dusting = st.sidebar.selectbox("Contacto permanente con metales (plata)", options=("No", "Si"))
         small_dents_in_nails = st.sidebar.selectbox("Pequeñas abolladuras en las uñas", options=("No", "Si"))
         inflammatory_nails = st.sidebar.selectbox("Uñas inflamadas", options=("No", "Si"))
         blister = st.sidebar.selectbox("Ampollas", options=("No", "Si"))
@@ -300,8 +305,6 @@ def main():
             "yellow_crust_ooze": [yellow_crust_ooze]
             })
         return features
-    
-
     # Manejo de datos
 
     cat_cols = ["itching", "skin_rash", "nodal_skin_eruptions", "continuous_sneezing", 
@@ -363,7 +366,7 @@ def main():
 
             ¡Recuerde que estos resultados no equivalen a un diagnóstico médico! Por lo tanto, se recomienda que consulte a un médico. 
             
-            Autor: Daniela Restrepo G., Joseph David Gómez C. y Miguel Angel Cycedo R.
+            Autor: Daniela Restrepo G., Joseph David Gómez C. y Miguel Angel Caycedo R.
             """)
     with col1:
         st.image("images/perroDoctor.png",
