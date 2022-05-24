@@ -5,7 +5,7 @@ import sklearn
 import streamlit as st
 import pandas as pd
 import polars as pl
-
+#v.3
 # Path del modelo preentrenado
 DATASET_PATH = "data/TestingMod.csv"
 MODEL_PATH = 'models/pickle_model.pkl'
@@ -59,7 +59,7 @@ def main():
         weight_loss = st.sidebar.selectbox("Pérdida de peso", options=("No", "Si"))
         restlessness = st.sidebar.selectbox("Intranquilidad", options=("No", "Si"))
         lethargy = st.sidebar.selectbox("Letargos", options=("No", "Si"))
-        patches_in_throat = st.sidebar.selectbox("Ulceras en la garganta", options=("No", "Si"))
+        patches_in_throat = st.sidebar.selectbox("Úlceras en la garganta", options=("No", "Si"))
         irregular_sugar_level = st.sidebar.selectbox("Nivel irregular de azúcar", options=("No", "Si"))
         cough = st.sidebar.selectbox("Tos", options=("No", "Si"))
         high_fever = st.sidebar.selectbox("Fiebre alta", options=("No", "Si"))
@@ -359,6 +359,7 @@ def main():
             El aprendizaje automático ha promovido progresos en diversos campos, tales como finanzas, industria, robótica, marketing, distribución de recursos, entre otros. En este sentido, la capacidad de los modelos de aprendizaje automático para extraer información de los datos, junto con la centralidad de los datos en el cuidado de la salud, ha tenido un impacto crucial en el diagnóstico oportuno de enfermedades, manejo y seguimiento de tratamientos. 
             
             En esta aplicación, se construyó un modelo de regresión logística utilizando datos de información clínica con 132 síntomas y 4920 muestras, las cuales abarcan desde dolores físicos hasta signos de comportamiento, lo cual permite hacer un análisis de enfermedades de tipo cardiovascular, gastrointestinal, enfermedades tropicales, respiratorias, crónicas y otro tipo de patologías.
+            
             Para obtener un diagnóstico de su enfermedad basado en sintomatología, siga los siguientes pasos:
             
             1)  Seleccione los síntomas que ha presentado en los últimos días con un “Si”. 
@@ -366,7 +367,7 @@ def main():
 
             ¡Recuerde que estos resultados no equivalen a un diagnóstico médico! Por lo tanto, se recomienda que consulte a un médico. 
             
-            Autor: Daniela Restrepo G., Joseph David Gómez C. y Miguel Angel Caycedo R.
+            Autor: Daniela Restrepo G., Joseph David Gómez C. y Miguel Angel Caycedo S.
             """)
     with col1:
         st.image("images/perroDoctor.png",
@@ -377,10 +378,17 @@ def main():
         prediction = log_model.predict(df)
         
         prediction = prediction[0]
+        prediction_proba = log_model.predict_proba(df)
 
         prueba = prediction.replace("Fungal infection", "Micosis").replace("Allergy", "Alergia").replace("GERD", "Reflujo gastroesofágico").replace("Chronic cholestasis", "Colestasis crónica").replace("Drug Reaction", "Reacción alérgica por drogas").replace("Peptic ulcer diseae", "Enfermedad de úlcera péptica").replace("AIDS", "SIDA").replace("Diabetes ", "Diabetes").replace("Gastroenteritis", "Gastroenteritis").replace("Bronchial Asthma", "Asma bronquial").replace("Hypertension ", "Hipertensión").replace("Migraine", "Migraña").replace("Cervical spondylosis", "Espondilosis cervical").replace("Paralysis (brain hemorrhage)", "Parálisis (hemorragia cerebral)").replace("Jaundice", "Ictericia").replace("Malaria", "Malaria").replace("Chicken pox", "Varicela").replace("Dengue", "Dengue").replace("Typhoid", "Tifoidea").replace("hepatitis A", "Hepatitis A").replace("Hepatitis B", "Hepatitis B").replace("Hepatitis C", "Hepatitis C").replace("Hepatitis D", "Hepatitis D").replace("Hepatitis E", "Hepatitis E").replace("Alcoholic hepatitis", "Hepatitis alcohólica").replace("Tuberculosis", "Tuberculosis").replace("Common Cold", "Resfriado comun").replace("Pneumonia", "Neumonía").replace("Dimorphic hemmorhoids(piles)", "Hemorroides dimórficas (almorranas)").replace("Heart attack", "Infarto de miocardio").replace("Varicose veins", "Venas varicosas").replace("Hypothyroidism", "Hipotiroidismo").replace("Hyperthyroidism", "Hipertiroidismo").replace("Hypoglycemia", "Hipoglucemia").replace("Osteoarthristis", "Osteoartritis").replace("Arthritis", "Artritis").replace("(vertigo) Paroymsal Positional Vertigo", "(Vértigo) Vértigo posicional paroxístico").replace("Acne", "Acné").replace("Urinary tract infection", "Infección del tracto urinario").replace("Psoriasis", "Psoriasis").replace("Impetigo", "Impétigo")
-        #st.write(prediction)
-        st.success('La enfermedad es: {}'.format(prueba).upper())
+        
+        #tomamos la prediccion con el porcentaje mas alto
+        max = np.max(prediction_proba)
+        
+        prueba = prueba +" con una probabilidad de " + str(round(max * 100, 2))+" %."
+        #prueba = prueba +" es de " + str(round(prediction_proba[0][0] * 100, 2))+" %."
+        st.success('La enfermedad mas probable de estar sufriendo es {}'.format(prueba).upper())
+        #st.success('La probabilidad de sufrir es: {}'.format(prueba).upper())
         #anterior forma
         #st.success('La enfermedad es: {}'.format(prediction[0]).upper())
 
