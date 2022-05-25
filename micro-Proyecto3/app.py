@@ -4,38 +4,29 @@ import pickle
 import sklearn
 import streamlit as st
 import pandas as pd
-import polars as pl
-#v.3
+
 # Path del modelo preentrenado
-DATASET_PATH = "data/TestingMod.csv"
 MODEL_PATH = 'models/pickle_model.pkl'
 
 
 def main():
-    @st.cache(persist=True)
-    def load_dataset() -> pd.DataFrame:
-        disease_df = pl.read_csv(DATASET_PATH, sep=';')
-        disease_df = disease_df.to_pandas()
-        disease_df = pd.DataFrame(np.sort(disease_df.values, axis=0),
-                                index=disease_df.index,
-                                columns=disease_df.columns)
-        return disease_df
     # Título
     html_temp = """
     
     </div>
     """
+    #Establecemos el icono, titulos y subtitulos de la pagina
     st.set_page_config(
         page_title="Diseases Prediction App",
-        page_icon="images/perroDoctor.png"
+        page_icon="images/robotDoctor.png"
     )
     st.title("Predicción de Enfermedades a partir de información de sintomatología")
     st.subheader("¿Presentas síntomas que te preocupan?"
-"¡No te angusties! Esta aplicación te brindará una guía de diagnóstico")
+    "¡No te angusties! Esta aplicación te brindará una guía de diagnóstico")
     st.markdown(html_temp,unsafe_allow_html=True)
     st.sidebar.title("Seleccione sus síntomas")
 
-
+    #Creamos el formulario con streamlit y guardamos cada respuesta en una variable
     def user_input_features() -> pd.DataFrame:
         itching = st.sidebar.selectbox("Comezón", options=("No", "Si"))
         skin_rash = st.sidebar.selectbox("Erupción cutanea", options=("No", "Si"))
@@ -170,6 +161,8 @@ def main():
         red_sore_around_nose = st.sidebar.selectbox("Llaga alrededor de la nariz", options=("No", "Si"))
         yellow_crust_ooze = st.sidebar.selectbox("Costra infectada supurando ", options=("No", "Si"))
 
+        #Concatenamos las variables que contienen las respuestas del usuario
+        #Las guardamos en un tipo de variable dataframe y por ultimo retorna este dataframe
         features = pd.DataFrame({
             "itching": [itching],
             "skin_rash": [skin_rash],
@@ -305,8 +298,8 @@ def main():
             "yellow_crust_ooze": [yellow_crust_ooze]
             })
         return features
-    # Manejo de datos
-
+    
+    #Contiene el nombre de todas las columnas del dataset
     cat_cols = ["itching", "skin_rash", "nodal_skin_eruptions", "continuous_sneezing", 
                 "shivering", "chills", "joint_pain", "stomach_pain", "acidity", "ulcers_on_tongue", 
                 "muscle_wasting", "vomiting", "burning_micturition", "spotting_ urination", "fatigue", 
@@ -338,22 +331,22 @@ def main():
                 "blackheads", "scurring", "skin_peeling", "silver_like_dusting", "small_dents_in_nails", 
                 "inflammatory_nails", "blister", "red_sore_around_nose", "yellow_crust_ooze"]
 
-    df_dataset = load_dataset()
-    #st.write(df_dataset)
-
-
+    #Obtenemos las entradas del usuario 
     input_df = user_input_features()
-    df = pd.concat([input_df, df_dataset], axis=0)
-    df = df.drop(columns=["prognosis"])
-    
-    df=df.replace({"No": 0, "Si": 1})
-    df = df[:1]
-    #st.write(df)
-    df.fillna(0, inplace=True)
+    #Reemplazamos las entradas del usuario para poder ser leidas por nuestro modelo
+    #Se reemplazan los "No" con 0 y los "Si" con 1
+    input_df=input_df.replace({"No": 0, "Si": 1})
+    #Para evitar errores, por defecto entradas no validas equivalen a 0 y entradas en vacio tambien
+    input_df.fillna(0, inplace=True)
+    #Cargamos el modelo con la direccion de la carpeta dada en la variable "MODEL_PATH"
     log_model = pickle.load(open(MODEL_PATH, "rb"))
 
+    #Creamos 2 columnas donde contendra informacion como texto e imagen
     col1, col2 = st.columns([1, 2])
-
+    with col1:
+        st.image("images/robotDoctor.png",
+                caption="I´M NOT A ROBOT!",
+                width=200)
     with col2:
         st.markdown("""
             El aprendizaje automático ha promovido progresos en diversos campos, tales como finanzas, industria, robótica, marketing, distribución de recursos, entre otros. En este sentido, la capacidad de los modelos de aprendizaje automático para extraer información de los datos, junto con la centralidad de los datos en el cuidado de la salud, ha tenido un impacto crucial en el diagnóstico oportuno de enfermedades, manejo y seguimiento de tratamientos. 
@@ -369,28 +362,23 @@ def main():
             
             Autor: Daniela Restrepo G., Joseph David Gómez C. y Miguel Angel Caycedo S.
             """)
-    with col1:
-        st.image("images/perroDoctor.png",
-                caption="Wowf! En que puedo ayudarte",
-                width=200)
-    # El botón predicción se usa para iniciar el procesamiento
+    
+    # Se le asigna el nombre "Predicción :" al boton
+    # El botón se va a usar para iniciar el proceso de prediccion de los datos
     if st.button("Predicción :"): 
-        prediction = log_model.predict(df)
-        
+        #Le pasamos los datos del usuario al objeto "log_model" y usamos la funcion predict() para predecir los datos
+        prediction = log_model.predict(input_df)
+        #Obtenemos la mejor prediccion de nuestro array
         prediction = prediction[0]
-        prediction_proba = log_model.predict_proba(df)
-
+        #Ahora predecimos la probabilidad, denuevo pasamos los input pero esta vez a la funcion predict_proba()
+        prediction_proba = log_model.predict_proba(input_df)
+        #Reemplazamos textos de ingles al español
         prueba = prediction.replace("Fungal infection", "Micosis").replace("Allergy", "Alergia").replace("GERD", "Reflujo gastroesofágico").replace("Chronic cholestasis", "Colestasis crónica").replace("Drug Reaction", "Reacción alérgica por drogas").replace("Peptic ulcer diseae", "Enfermedad de úlcera péptica").replace("AIDS", "SIDA").replace("Diabetes ", "Diabetes").replace("Gastroenteritis", "Gastroenteritis").replace("Bronchial Asthma", "Asma bronquial").replace("Hypertension ", "Hipertensión").replace("Migraine", "Migraña").replace("Cervical spondylosis", "Espondilosis cervical").replace("Paralysis (brain hemorrhage)", "Parálisis (hemorragia cerebral)").replace("Jaundice", "Ictericia").replace("Malaria", "Malaria").replace("Chicken pox", "Varicela").replace("Dengue", "Dengue").replace("Typhoid", "Tifoidea").replace("hepatitis A", "Hepatitis A").replace("Hepatitis B", "Hepatitis B").replace("Hepatitis C", "Hepatitis C").replace("Hepatitis D", "Hepatitis D").replace("Hepatitis E", "Hepatitis E").replace("Alcoholic hepatitis", "Hepatitis alcohólica").replace("Tuberculosis", "Tuberculosis").replace("Common Cold", "Resfriado comun").replace("Pneumonia", "Neumonía").replace("Dimorphic hemmorhoids(piles)", "Hemorroides dimórficas (almorranas)").replace("Heart attack", "Infarto de miocardio").replace("Varicose veins", "Venas varicosas").replace("Hypothyroidism", "Hipotiroidismo").replace("Hyperthyroidism", "Hipertiroidismo").replace("Hypoglycemia", "Hipoglucemia").replace("Osteoarthristis", "Osteoartritis").replace("Arthritis", "Artritis").replace("(vertigo) Paroymsal Positional Vertigo", "(Vértigo) Vértigo posicional paroxístico").replace("Acne", "Acné").replace("Urinary tract infection", "Infección del tracto urinario").replace("Psoriasis", "Psoriasis").replace("Impetigo", "Impétigo")
-        
-        #tomamos la prediccion con el porcentaje mas alto
+        #Obtenemos la prediccion con el porcentaje mas alto la cual corresponde a la probabilidad de la variable "prediction"
         max = np.max(prediction_proba)
-        
+        #Le damos formato a la prediccion para visualizarla de la mejor manera
         prueba = prueba +" con una probabilidad de " + str(round(max * 100, 2))+" %."
-        #prueba = prueba +" es de " + str(round(prediction_proba[0][0] * 100, 2))+" %."
         st.success('La enfermedad mas probable de estar sufriendo es {}'.format(prueba).upper())
-        #st.success('La probabilidad de sufrir es: {}'.format(prueba).upper())
-        #anterior forma
-        #st.success('La enfermedad es: {}'.format(prediction[0]).upper())
 
 
 if __name__ == '__main__':
